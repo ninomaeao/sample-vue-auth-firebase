@@ -12,20 +12,20 @@
       </el-menu-item>
     </el-menu>
     <main>
-      <template v-if="this.$route.name != 'login'">
+      <template v-if="this.$route.name === 'login' || this.$route.name === 'register'">
+        <el-row :gutter="24">
+          <el-col :sm="24" class="contents">
+            <router-view></router-view>
+          </el-col>
+        </el-row>
+      </template>
+      <template v-else>
         <el-row :gutter="24">
           <el-col :sm="18" class="contents">
             <router-view></router-view>
           </el-col>
           <el-col :sm="6" class="sidebar">
             <side-common></side-common>
-          </el-col>
-        </el-row>
-      </template>
-      <template v-if="this.$route.name == 'login'">
-        <el-row :gutter="24">
-          <el-col :sm="24" class="contents">
-            <router-view></router-view>
           </el-col>
         </el-row>
       </template>

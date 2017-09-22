@@ -1,51 +1,46 @@
 <template>
   <div class="box">
-    <div v-if="user">
-      <div class="user-photoURL">
-        <img :src="user.photoURL">
-      </div>
-      <div class="user-displayName">{{ user.displayName }}</div>
-      <el-button @click="logout">ログアウト</el-button>
+    <div v-if="user.auth">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <div class="user-photoURL" v-if="user.profile.photoURL">
+            <img :src="user.profile.photoURL">
+          </div>
+          <span style="font-size: 12px; "><router-link to="/myPage">{{ user.displayName }}</router-link></span>
+        </div>
+        <div style="text-align: center; ">
+          <el-button @click="logout">ログアウト</el-button>
+        </div>
+      </el-card>
     </div>
     <div v-else>
-      <router-link to="/login">ログイン</router-link>
+      <div style="text-align: center; ">
+        <router-link tag="el-button" to="/login">ログイン</router-link>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-  import router from '../router'
   import firebase from 'firebase'
+  import {mapGetters, mapActions} from 'vuex'
 
   export default {
-    data() {
-      return {
-        user: null
-      }
+    computed: {
+      ...mapGetters('auth', {
+        user: 'user',
+      }),
     },
     methods: {
       logout() {
         firebase.auth().signOut().then(() => {
-          router.go('/login');
+          this.$router.go('/login');
         })
       },
+      login() {
+        this.$router.go('/login');
+      },
     },
-    created() {
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          this.user = user;
-          user.providerData.forEach(function (profile) {
-            console.log("Sign-in provider: " + profile.providerId);
-            console.log("  Provider-specific UID: " + profile.uid);
-            console.log("  Name: " + profile.displayName);
-            console.log("  Email: " + profile.email);
-            console.log("  Photo URL: " + profile.photoURL);
-          });
-        } else {
-          this.user = null
-        }
-      })
-    }
   }
 </script>
 

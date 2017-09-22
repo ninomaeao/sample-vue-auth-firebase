@@ -15,6 +15,9 @@
         <el-button type="primary" @click="twitter">Twitterでログイン</el-button>
         <el-button @click="resetForm('loginForm')">リセット</el-button>
       </el-form-item>
+      <div style="text-align: center;">
+        <router-link to="/register">ユーザー登録はこちら</router-link>
+      </div>
     </el-form>
   </div>
 </template>
@@ -43,7 +46,22 @@
     methods: {
       login() {
         if (this.form.email && this.form.password) {
-          firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.password)
+          let that = this;
+          firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.password).catch(function (error) {
+            // Handle Errors here.
+            let errorCode = error.code;
+            let errorMessage = error.message;
+            if (errorCode === 'auth/wrong-password') {
+              alert('Wrong password.');
+            } else {
+              alert(errorMessage);
+            }
+            console.log(error);
+          }).then(function (user) {
+            if (user) {
+              that.$router.go('/mypage')
+            }
+          })
         }
       },
       logout() {

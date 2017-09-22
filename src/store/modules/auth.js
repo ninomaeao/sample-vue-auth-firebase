@@ -3,19 +3,49 @@ import firebase from 'firebase'
 const auth = {
   namespaced: true,
   state: {
-    user: {}
+    user: {
+      auth: false,
+      uid: '',
+      email: '',
+      displayName: '',
+      emailVerified: false,
+      profile: null,
+    }
   },
   getters: {
-    user: (state) => state.user
+    user: (state) => state.user,
   },
   mutations: {
-    set (state, payload) {
+    set(state, payload) {
       state.user = payload
     }
   },
   actions: {
     init({commit}) {
       return new Promise((resolve) => {
+        // 現在ログインしているユーザーを取得
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            let _user = {
+              auth: true,
+              uid: user.uid,
+              email: user.email,
+              displayName: user.email,
+              emailVerified: user.emailVerified,
+              profile: null,
+            };
+            user.providerData.forEach(function (profile) {
+              _user.profile = profile;
+              if (profile.providerId !== "password") {
+                _user.emailVerified = true;
+                _user.displayName = profile.displayName;
+              }
+            });
+            commit('set', _user);
+          }
+          resolve()
+        });
+
         // Twitter認証完了後の処理
         firebase.auth().getRedirectResult().then(function (result) {
           if (result.credential) {
@@ -32,14 +62,20 @@ const auth = {
           };
           let user = result.user;
           if (user) {
-            profile = {
+            let _user = {
               auth: true,
               uid: user.uid,
               email: user.email,
-              displayName: user.displayName
-            }
+              displayName: user.displayName,
+              emailVerified: true,
+              profile: null,
+            };
+            user.providerData.forEach(function (profile) {
+              _user.profile = profile;
+            });
+            console.log(_user.profile);
+            commit('set', _user);
           }
-          commit('set', profile);
           resolve()
         }).catch(function (error) {
           console.log(error);
@@ -52,26 +88,6 @@ const auth = {
           let credential = error.credential;
           // ...
         });
-
-        // 現在ログインしているユーザーを取得
-        firebase.auth().onAuthStateChanged((user) => {
-          let profile = {
-            auth: false,
-            uid: '',
-            email: '',
-            displayName: ''
-          };
-          if (user) {
-            profile = {
-              auth: true,
-              uid: user.uid,
-              email: user.email,
-              displayName: user.email
-            }
-          }
-          commit('set', profile);
-          resolve()
-        })
       })
     }
   }

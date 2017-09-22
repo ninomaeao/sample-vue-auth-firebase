@@ -7,6 +7,7 @@ Vue.use(VueRouter);
 import Error404 from '../views/error404.vue'
 import Top from '../views/top.vue'
 import Login from '../views/auth/login.vue'
+import Register from '../views/auth/register.vue'
 import MyPage from '../views/auth/mypage.vue'
 
 const routes = [
@@ -14,6 +15,16 @@ const routes = [
   {name: 'top', path: '/', component: Top},
   {
     name: 'login', path: '/login', component: Login,
+    beforeEnter: (to, from, next) => {
+      if (store.getters['auth/user'].auth === true) {
+        next('/myPage')
+      } else {
+        next()
+      }
+    }
+  },
+  {
+    name: 'register', path: '/register', component: Register,
     beforeEnter: (to, from, next) => {
       if (store.getters['auth/user'].auth === true) {
         next('/myPage')
