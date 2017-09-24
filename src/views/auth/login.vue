@@ -3,28 +3,29 @@
 
     <h2>ログイン</h2>
 
-    <el-form ref="loginForm" label-position="left" label-width="9em" :model="form" :rules="rules">
+    <el-form ref="loginForm" label-position="top" label-width="9em" :model="loginForm" :rules="rules"
+             v-loading.body="loading">
       <el-form-item label="メールアドレス" prop="email">
-        <el-input v-model="form.email"></el-input>
+        <el-input v-model="loginForm.email"></el-input>
       </el-form-item>
       <el-form-item label="パスワード" prop="password">
-        <el-input v-model="form.password"></el-input>
+        <el-input v-model="loginForm.password"></el-input>
       </el-form-item>
+      <el-alert
+          v-if="loginForm.error"
+          :title="loginForm.error"
+          type="error"
+          style="margin-bottom: 1em"
+      >
+      </el-alert>
+      <el-alert
+          v-if="auth.error"
+          :title="auth.error"
+          type="error"
+          style="margin-bottom: 1em"
+      >
+      </el-alert>
       <el-form-item>
-        <el-alert
-            v-if="error"
-            :title="error"
-            type="error"
-            style="margin-bottom: 1em"
-        >
-        </el-alert>
-        <el-alert
-            v-if="auth.error"
-            :title="auth.error"
-            type="error"
-            style="margin-bottom: 1em"
-        >
-        </el-alert>
         <el-button type="primary" @click="login">ログイン</el-button>
         <el-button @click="resetForm('loginForm')">リセット</el-button>
       </el-form-item>
@@ -50,15 +51,16 @@
     },
     data() {
       return {
-        error: "",
-        form: {
+        loading: false,
+        loginForm: {
           email: '',
           password: '',
+          error: "",
         },
         rules: {
           email: [
             {required: true, message: 'Please input email address', trigger: 'blur'},
-            {type: 'email', message: 'Please input correct email address', trigger: 'blur,change'}
+            {type: 'email', message: 'Please input correct email address', trigger: 'blur'}
           ],
           password: [
             {required: true, message: 'Please input password', trigger: 'blur'},
@@ -68,14 +70,17 @@
     },
     methods: {
       login() {
-        if (this.form.email && this.form.password) {
+        if (this.loginForm.email && this.loginForm.password) {
+          this.loading = true;
           const vm = this;
-          firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.password).catch((error) => {
-            vm.error = error.message;
+          firebase.auth().signInWithEmailAndPassword(this.loginForm.email, this.loginForm.password).catch((error) => {
+            this.loading = false;
+            vm.loginForm.error = error.message;
           }).then((user) => {
             if (user) {
-              vm.$router.go('/mypage')
+              vm.$router.go('/account')
             }
+            this.loading = false;
           })
         }
       },

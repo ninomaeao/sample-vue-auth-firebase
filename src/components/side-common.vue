@@ -9,7 +9,7 @@
           <div class="auth-photoURL" v-if="auth.profile.photoURL">
             <img :src="auth.profile.photoURL" class="auth-photo">
           </div>
-          <span style="font-size: 12px; "><router-link to="/myPage">{{ name }}</router-link></span>
+          <span style="font-size: 12px; "><router-link to="/account">{{ name }}</router-link></span>
         </div>
         <div style="text-align: center; ">
           <el-button @click="logout">ログアウト</el-button>
@@ -51,12 +51,12 @@
     },
     created() {
       if (this.auth.auth) {
-        this.name = this.user.name;
+        if (this.user) this.name = this.user.name;
         const vm = this;
         this.get({
           uid: this.auth.uid,
           cb: (err, user) => {
-            if (user.name) {
+            if (user && user.name) {
               vm.name = user.name
             } else {
               vm.name = "名無し"

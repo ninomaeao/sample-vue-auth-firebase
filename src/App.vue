@@ -7,8 +7,8 @@
       <el-menu-item index="top">
         <router-link to="/">トップ</router-link>
       </el-menu-item>
-      <el-menu-item index="myPage" v-if="auth.auth">
-        <router-link to="/myPage">マイページ</router-link>
+      <el-menu-item index="account" v-if="auth.auth">
+        <router-link to="/account">アカウント</router-link>
       </el-menu-item>
       <el-menu-item index="login" v-else>
         <router-link to="/login">ログイン</router-link>

@@ -8,7 +8,7 @@ import Error404 from '../views/error404.vue'
 import Top from '../views/top.vue'
 import Login from '../views/auth/login.vue'
 import Register from '../views/auth/register.vue'
-import MyPage from '../views/auth/mypage.vue'
+import Account from '../views/account/index.vue'
 
 const routes = [
   {path: '*', component: Error404},
@@ -17,7 +17,7 @@ const routes = [
     name: 'login', path: '/login', component: Login, meta: { side: false },
     beforeEnter: (to, from, next) => {
       if (store.getters['auth/auth'].auth === true) {
-        next('/myPage')
+        next('/account')
       } else {
         next()
       }
@@ -27,14 +27,14 @@ const routes = [
     name: 'register', path: '/register', component: Register, meta: { side: false },
     beforeEnter: (to, from, next) => {
       if (store.getters['auth/auth'].auth === true) {
-        next('/myPage')
+        next('/account')
       } else {
         next()
       }
     }
   },
   {
-    name: 'myPage', path: '/myPage', component: MyPage,
+    name: 'account', path: '/account', component: Account,
     meta: {requiresAuth: true, side: false}
   },
 ];

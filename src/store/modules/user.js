@@ -8,7 +8,6 @@ const user = {
   },
   getters: {
     user: (state) => state,
-    ref: (uid) => firebase.database().ref(`/users/${uid}`),
   },
   mutations: {
     set(state, payload) {
@@ -22,7 +21,7 @@ const user = {
   },
   actions: {
     get({commit}, payload) {
-      user.getters.ref(payload.uid).on('value', (snapshot) => {
+      firebase.database().ref(`/users/${payload.uid}`).on('value', (snapshot) => {
         commit('set', snapshot.val());
         if (payload.cb) payload.cb(null, snapshot.val())
       }, (error) => {
@@ -30,7 +29,7 @@ const user = {
       })
     },
     update({commit}, payload) {
-      user.getters.ref(payload.uid).set({
+      firebase.database().ref(`/users/${payload.uid}`).set({
         name: payload.name,
       }, (error) => {
         if (error) {

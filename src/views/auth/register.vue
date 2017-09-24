@@ -3,7 +3,8 @@
 
     <h2>ユーザー登録</h2>
 
-    <el-form ref="registerForm" label-position="left" label-width="9em" :model="registerForm" :rules="rules">
+    <el-form ref="registerForm" label-position="left" label-width="9em" :model="registerForm" :rules="rules"
+             v-loading.body="loading">
       <el-form-item label="メールアドレス" prop="email">
         <el-input v-model="registerForm.email"></el-input>
       </el-form-item>
@@ -15,8 +16,8 @@
       </el-form-item>
       <el-form-item>
         <el-alert
-            v-if="error"
-            :title="error"
+            v-if="registerForm.error"
+            :title="registerForm.error"
             type="error"
             style="margin-bottom: 1em"
         >
@@ -49,16 +50,17 @@
         }
       };
       return {
-        error: "",
+        loading: false,
         registerForm: {
           email: '',
           password: '',
           passwordConfirm: '',
+          error: "",
         },
         rules: {
           email: [
             {required: true, message: 'Please input email address', trigger: 'blur'},
-            {type: 'email', message: 'Please input correct email address', trigger: 'blur,change'}
+            {type: 'email', message: 'Please input correct email address', trigger: 'blur'}
           ],
           password: [
             {required: true, message: 'Please input password', trigger: 'blur'},
@@ -74,15 +76,16 @@
     },
     methods: {
       submitForm(formName) {
+        this.loading = true;
         this.$refs[formName].validate((valid) => {
           if (valid) {
             const vm = this;
-            firebase.auth().createUserWithEmailAndPassword(this.registerForm.email, this.registerForm.password)
-              .catch(function (error) {
-                vm.error = error.message;
-              }).then(function (user) {
+            firebase.auth().createUserWithEmailAndPassword(this.registerForm.email, this.registerForm.password).catch(function (error) {
+              this.loading = false;
+              vm.registerForm.error = error.message;
+            }).then(function (user) {
               if (user) {
-                vm.$router.go('/mypage')
+                vm.$router.go('/account')
               }
             })
           }
