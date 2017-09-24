@@ -12,11 +12,11 @@ import MyPage from '../views/auth/mypage.vue'
 
 const routes = [
   {path: '*', component: Error404},
-  {name: 'top', path: '/', component: Top},
+  {name: 'top', path: '/', component: Top, meta: { side: true }},
   {
-    name: 'login', path: '/login', component: Login,
+    name: 'login', path: '/login', component: Login, meta: { side: false },
     beforeEnter: (to, from, next) => {
-      if (store.getters['auth/user'].auth === true) {
+      if (store.getters['auth/auth'].auth === true) {
         next('/myPage')
       } else {
         next()
@@ -24,9 +24,9 @@ const routes = [
     }
   },
   {
-    name: 'register', path: '/register', component: Register,
+    name: 'register', path: '/register', component: Register, meta: { side: false },
     beforeEnter: (to, from, next) => {
-      if (store.getters['auth/user'].auth === true) {
+      if (store.getters['auth/auth'].auth === true) {
         next('/myPage')
       } else {
         next()
@@ -35,7 +35,7 @@ const routes = [
   },
   {
     name: 'myPage', path: '/myPage', component: MyPage,
-    meta: {requiresAuth: true}
+    meta: {requiresAuth: true, side: false}
   },
 ];
 
@@ -46,7 +46,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (store.getters['auth/user'].auth !== true) {
+    if (store.getters['auth/auth'].auth !== true) {
       next({
         path: '/login',
         query: {redirect: to.fullPath}

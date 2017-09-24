@@ -11,9 +11,27 @@
         <el-input v-model="form.password"></el-input>
       </el-form-item>
       <el-form-item>
+        <el-alert
+            v-if="error"
+            :title="error"
+            type="error"
+            style="margin-bottom: 1em"
+        >
+        </el-alert>
+        <el-alert
+            v-if="auth.error"
+            :title="auth.error"
+            type="error"
+            style="margin-bottom: 1em"
+        >
+        </el-alert>
         <el-button type="primary" @click="login">ログイン</el-button>
-        <el-button type="primary" @click="twitter">Twitterでログイン</el-button>
         <el-button @click="resetForm('loginForm')">リセット</el-button>
+      </el-form-item>
+      <el-form-item class="sns-buttons">
+        <el-button type="primary" @click="twitter">Twitterでログイン</el-button>
+        <el-button type="primary" @click="google">Googleでログイン</el-button>
+        <el-button type="primary" @click="facebook">Facebookでログイン</el-button>
       </el-form-item>
       <div style="text-align: center;">
         <router-link to="/register">ユーザー登録はこちら</router-link>
@@ -24,10 +42,15 @@
 
 <script>
   import firebase from 'firebase'
+  import {mapGetters, mapActions} from 'vuex'
 
   export default {
+    computed: {
+      ...mapGetters('auth', ['auth']),
+    },
     data() {
       return {
+        error: "",
         form: {
           email: '',
           password: '',
@@ -46,20 +69,12 @@
     methods: {
       login() {
         if (this.form.email && this.form.password) {
-          let that = this;
-          firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.password).catch(function (error) {
-            // Handle Errors here.
-            let errorCode = error.code;
-            let errorMessage = error.message;
-            if (errorCode === 'auth/wrong-password') {
-              alert('Wrong password.');
-            } else {
-              alert(errorMessage);
-            }
-            console.log(error);
-          }).then(function (user) {
+          const vm = this;
+          firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.password).catch((error) => {
+            vm.error = error.message;
+          }).then((user) => {
             if (user) {
-              that.$router.go('/mypage')
+              vm.$router.go('/mypage')
             }
           })
         }
@@ -69,6 +84,14 @@
       },
       twitter() {
         const provider = new firebase.auth.TwitterAuthProvider();
+        firebase.auth().signInWithRedirect(provider);
+      },
+      google() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithRedirect(provider);
+      },
+      facebook() {
+        const provider = new firebase.auth.FacebookAuthProvider();
         firebase.auth().signInWithRedirect(provider);
       },
       resetForm(formName) {
@@ -87,5 +110,11 @@
 
   h2 {
     text-align: center;
+  }
+
+  .sns-buttons button {
+    margin: 0;
+    font-size: 12px;
+    padding: 7px 8px;
   }
 </style>

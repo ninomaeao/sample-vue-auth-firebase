@@ -15,10 +15,13 @@ import firebase from 'firebase'
 import {fireBaseConfig} from './firebase.config'
 firebase.initializeApp(fireBaseConfig);
 
+const database = firebase.database();
+
 store.dispatch('auth/init').then(() => {
   const app = new Vue({
     router,
     store,
+    database,
     render: h => h(App)
   }).$mount('#app');
 });

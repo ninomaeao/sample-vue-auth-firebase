@@ -14,6 +14,13 @@
         <el-input v-model="registerForm.passwordConfirm"></el-input>
       </el-form-item>
       <el-form-item>
+        <el-alert
+            v-if="error"
+            :title="error"
+            type="error"
+            style="margin-bottom: 1em"
+        >
+        </el-alert>
         <el-button type="primary" @click="submitForm('registerForm')">ユーザーを登録する</el-button>
         <el-button @click="resetForm('registerForm')">リセット</el-button>
       </el-form-item>
@@ -27,9 +34,7 @@
   export default {
     data() {
       let validatePass = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('Please input the password'));
-        } else {
+        if (value !== '') {
           if (this.registerForm.passwordConfirm !== '') {
             this.$refs.registerForm.validateField('passwordConfirm');
           }
@@ -37,15 +42,14 @@
         }
       };
       let validatePass2 = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('Please input the password again'));
-        } else if (value !== this.registerForm.password) {
+        if (value !== '' && value !== this.registerForm.password) {
           callback(new Error('Two inputs don\'t match!'));
-        } else {
+        } else if (value !== '') {
           callback();
         }
       };
       return {
+        error: "",
         registerForm: {
           email: '',
           password: '',
@@ -57,10 +61,12 @@
             {type: 'email', message: 'Please input correct email address', trigger: 'blur,change'}
           ],
           password: [
+            {required: true, message: 'Please input password', trigger: 'blur'},
             {validator: validatePass, trigger: 'blur'},
             {min: 6, max: 30, message: 'Length should be 6 to 30', trigger: 'blur'}
           ],
           passwordConfirm: [
+            {required: true, message: 'Please input confirm password', trigger: 'blur'},
             {validator: validatePass2, trigger: 'blur'},
           ]
         }
@@ -70,26 +76,15 @@
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            let that = this;
+            const vm = this;
             firebase.auth().createUserWithEmailAndPassword(this.registerForm.email, this.registerForm.password)
               .catch(function (error) {
-                // Handle Errors here.
-                let errorCode = error.code;
-                let errorMessage = error.message;
-                if (errorCode == 'auth/weak-password') {
-                  alert('The password is too weak.');
-                } else {
-                  alert(errorMessage);
-                }
-                console.log(error);
+                vm.error = error.message;
               }).then(function (user) {
               if (user) {
-                that.$router.go('/mypage')
+                vm.$router.go('/mypage')
               }
             })
-          } else {
-            console.log('error submit!!');
-            return false;
           }
         });
       },
