@@ -77,7 +77,9 @@ module.exports = {
   devServer: {
     contentBase: './www',
     historyApiFallback: true,
-    noInfo: true
+    noInfo: true,
+    host: "0.0.0.0",
+    useLocalIp: true
   },
   performance: {
     hints: false
